@@ -14,56 +14,34 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/TextStream.h"
+#ifndef __IO_TextStream_h
+#define __IO_TextStream_h
 
-#include <assert.h>
-#include <stdint.h>
-#include <sstream>
-#include <string>
+#include "IO/BaseStream.h"
+#include "IO/ReadStream.h"
+#include "IO/WriteStream.h"
 
-using namespace IO;
-using namespace Base;
+#include "base/String.h"
 
-class __EOL {
+namespace IO {
+  class TextStream {
   public:
-    static std::string genEOL() {
-      std::stringstream ss;
-      ss << std::endl;
-      return ss.str();
+    TextStream(IO::BaseStream& stream);
+
+    Base::String readLine();
+
+    void writeLine(Base::String const& line);
+    void write(Base::String const& line);
+
+    virtual bool endOfStream() {
+      return stream_->endOfStream();
     }
 
-    __EOL() : value(genEOL()) {}
-    std::string const value;
-};
-
-static __EOL const _eol;
-
-TextStream::TextStream(BaseStream& stream) :
-  stream_(&stream)
-{
+    virtual bool canRead() const { return stream_->canRead(); }
+    virtual bool canWrite() const { return stream_->canWrite(); }
+  private:
+    IO::BaseStream* stream_;
+  };
 }
 
-String TextStream::readLine() {
-  String ret("");
-  assert(canRead());
-  ReadStream* s = dynamic_cast<ReadStream*>(stream_);
-  while(!s->endOfStream())
-  {
-    char ch = s->readByte();
-    if (ch == '\r') continue;
-    else if (ch == '\n') break;
-    ret += ch;
-  }
-  return ret;
-}
-
-void TextStream::writeLine(String const& line) {
-  WriteStream* s = dynamic_cast<WriteStream*>(stream_);
-  s->write(line.c_str(), line.length());
-  s->write(_eol.value.c_str(), _eol.value.length());
-}
-
-void TextStream::write(String const& line) {
-  WriteStream* s = dynamic_cast<WriteStream*>(stream_);
-  s->write(line.c_str(), line.length());
-}
+#endif
