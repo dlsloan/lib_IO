@@ -21,7 +21,7 @@
 #include "IO/ReadStream.h"
 #include "IO/WriteStream.h"
 
-#include "base/String.h"
+#include "Base/String.h"
 
 namespace IO {
   class TextStream {
